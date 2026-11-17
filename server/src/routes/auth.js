@@ -6,6 +6,7 @@ import { config } from "../config.js";
 import { body } from "../lib/validate.js";
 import { COOKIE } from "../middleware/session.js";
 import { HttpError, notFound } from "../lib/errors.js";
+import { sendOtpEmail } from "../lib/mailer.js";
 import { normEmail, otpCode, randomToken, sha256 } from "../lib/util.js";
 
 const r = new Hono();
@@ -28,7 +29,7 @@ r.post("/otp/request", body(z.object({ email: z.string().email() })), async (c) 
     const code = otpCode();
     await query("INSERT INTO otp_codes (email,code_hash,expires_at) VALUES ($1,$2, now() + interval '10 minutes')", [email, sha256(`${email}:${code}`)]);
     if (config.otpConsole) console.log(`[otp] ${email} -> ${code}`);
-    // TODO: send via SES when OTP_CONSOLE is off.
+    else await sendOtpEmail(email, code).catch((e) => console.error("otp email failed", e.message));
   }
   return c.json({ ok: true });
 });

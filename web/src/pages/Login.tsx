@@ -29,7 +29,7 @@ export function LoginPage() {
       <div className="page-enter w-full max-w-2xl">
         <div className="mb-6 flex items-center justify-center gap-2.5">
           <div className="grid size-9 place-items-center rounded-xl bg-primary text-primary-fg"><Radio className="size-5" /></div>
-          <h1 className="text-2xl font-semibold tracking-tight">Orotron Notify</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Echoly</h1>
         </div>
         {USE_MOCK ? (
           <div className="rounded-2xl border border-border bg-surface p-6">

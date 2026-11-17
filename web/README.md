@@ -1,4 +1,4 @@
-# Orotron Notify — Web dashboard
+# Echoly — Web dashboard
 
 React 19 · Vite 7 · TypeScript (strict) · Tailwind v4 · shadcn/ui (Radix) · TanStack Router + Query · Recharts
 
@@ -24,8 +24,8 @@ React 19 · Vite 7 · TypeScript (strict) · Tailwind v4 · shadcn/ui (Radix) ·
 ## Deploy
 Static SPA. Build with the real API URL, serve `dist/` from any static host / CDN with SPA fallback to `index.html`.
 
-    docker build --build-arg VITE_API_URL=https://api.yourdomain.com -t orotron-notify-web .
-    docker run -p 8080:80 orotron-notify-web
+    docker build --build-arg VITE_API_URL=https://api.yourdomain.com -t echoly-web .
+    docker run -p 8080:80 echoly-web
 
 Or S3 + CloudFront (rewrite 403/404 → /index.html), Vercel, Netlify, etc.
 

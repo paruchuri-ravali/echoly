@@ -170,7 +170,7 @@ export function Shell() {
     <div className="flex h-full flex-col overflow-hidden">
       <div className={clsx("flex items-center gap-2 pb-3 pt-4", collapsed ? "justify-center px-2" : "px-4")}>
         <div className="grid size-7 shrink-0 place-items-center rounded-lg bg-primary text-primary-fg"><Radio className="size-4" /></div>
-        {!collapsed && <span className="text-[15px] font-semibold tracking-tight">Orotron Notify</span>}
+        {!collapsed && <span className="text-[15px] font-semibold tracking-tight">Echoly</span>}
       </div>
       {!collapsed && <div className="px-3 pb-2"><WorkspaceSwitcher orgs={orgs.data ?? []} projects={projects.data ?? []} /></div>}
       <nav aria-label="Main" className={clsx("flex-1 overflow-y-auto pb-3", collapsed ? "px-2" : "px-3")}>

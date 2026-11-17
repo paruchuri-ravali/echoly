@@ -9,5 +9,5 @@ if (process.env.DB_SECRET_ARN) {
   const u = encodeURIComponent(s.username);
   const p = encodeURIComponent(s.password);
   const ssl = process.env.DB_SSL === "false" ? "" : "?sslmode=no-verify";
-  process.env.DATABASE_URL = `postgres://${u}:${p}@${s.host}:${s.port ?? 5432}/${s.dbname ?? "notify"}${ssl}`;
+  process.env.DATABASE_URL = `postgres://${u}:${p}@${s.host}:${s.port ?? 5432}/${s.dbname ?? "echoly"}${ssl}`;
 }

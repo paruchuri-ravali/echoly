@@ -4,6 +4,13 @@ const { app } = await import("./app.js");
 const { config } = await import("./config.js");
 const { pool } = await import("./db/pool.js");
 
+if (config.runMigrations) {
+  const { migrate } = await import("./db/migrate.js");
+  const { bootstrapAdmin } = await import("./db/bootstrap.js");
+  await migrate();
+  await bootstrapAdmin(config.bootstrapAdminEmail);
+}
+
 const server = serve({ fetch: app.fetch, port: config.port }, (i) => console.log(`API listening on :${i.port}`));
 const stop = () => server.close(() => pool.end().then(() => process.exit(0)));
 process.on("SIGTERM", stop);

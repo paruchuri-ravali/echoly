@@ -1,4 +1,4 @@
-# Orotron Notify — API server
+# Echoly — API server
 
 Node.js (ESM, plain JavaScript) · Hono · PostgreSQL · built to run on AWS (ECS Fargate + RDS).
 

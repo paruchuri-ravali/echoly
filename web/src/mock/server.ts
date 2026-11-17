@@ -1,5 +1,5 @@
 /**
- * DEV-ONLY in-browser mock of the *planned* NosActa/Orotron Notify API.
+ * DEV-ONLY in-browser mock of the *planned* Echoly API.
  * Active only when VITE_USE_MOCK=true. All data here is synthetic DEMO data and the UI
  * shows a permanent banner while it is active. It exists so the frontend can be built and
  * reviewed before the backend exists. It is NOT real platform data.
@@ -475,7 +475,7 @@ export async function handle(method: string, path: string, q: Record<string, unk
   if (path === "/v1/schedules" && method === "POST") { const s: Schedule = { id: id("sch"), template_key: b.template_key, recipient: b.recipient, channel: b.channel, timezone: b.timezone, kind: "one_off", rule: "once", next_run_at: new Date(b.local_time).toISOString(), status: "scheduled", last_run_status: null }; schedules.unshift(s); return s; }
   if ((m = path.match(/^\/v1\/schedules\/([^/]+)\/cancel$/))) { const s = schedules.find((x) => x.id === m![1]); if (!s) throw nf("Schedule"); if (s.status !== "scheduled") throw new ApiError(409, "not_cancellable", "Schedule can no longer be cancelled"); s.status = "cancelled"; s.next_run_at = null; return s; }
 
-  if (path === "/v1/openapi.json") return { openapi: "3.1.0", info: { title: "Orotron Notify API (mock)", version: "0.0.0-demo" }, paths: { "/v1/notifications": {}, "/v1/templates": {}, "/v1/schedules": {}, "/v1/webhooks": {} } };
+  if (path === "/v1/openapi.json") return { openapi: "3.1.0", info: { title: "Echoly API (mock)", version: "0.0.0-demo" }, paths: { "/v1/notifications": {}, "/v1/templates": {}, "/v1/schedules": {}, "/v1/webhooks": {} } };
   if (path === "/v1/webhooks") return webhooks;
   if (path === "/internal/logs/queues") return queues;
   if (path === "/internal/logs/dead-letters") return deadLetters;

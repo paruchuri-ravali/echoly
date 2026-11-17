@@ -8,7 +8,7 @@ const adminName = process.env.SEED_ADMIN_NAME ?? "Main Admin";
 
 await tx(async (db) => {
   const org = (await db.query("SELECT id FROM orgs LIMIT 1")).rows[0]?.id ?? newId("org");
-  await db.query("INSERT INTO orgs (id,name,slug) VALUES ($1,'Orotron','orotron') ON CONFLICT DO NOTHING", [org]);
+  await db.query("INSERT INTO orgs (id,name,slug) VALUES ($1,'Echoly','echoly') ON CONFLICT DO NOTHING", [org]);
 
   let project = (await db.query("SELECT id FROM projects WHERE org_id=$1 LIMIT 1", [org])).rows[0]?.id;
   if (!project) {
