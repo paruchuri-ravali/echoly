@@ -104,13 +104,16 @@ Approximate cost while running: about USD 35-45 per month (ALB, Fargate, RDS t4g
 
 | Area | State |
 |---|---|
-| Dashboard: all pages (overview, notifications, templates, analytics, branding, workflows, schedules, channels, projects, developers, logs, security/admin) | Done, on demo data |
+| Dashboard: all pages | Done |
 | API: auth (OTP + sessions), roles and permission matrix, projects, environments, API keys, users, audit log | Done |
+| API: notifications (send, list, detail, retry, cancel, idempotency, API-key auth), delivery via SES (email) | Done |
+| API: templates (versions, preview, gallery, per-project override), email branding | Done |
+| API: channels, provider credentials (encrypted), sender verification (SES), schedules (one-off), overview, analytics, logs, search, OpenAPI | Done |
 | AWS deployment (CDK) | Done |
-| API: notifications + SQS worker + SES sending | Next |
-| API: templates, schedules, channels/providers, webhooks, logs, analytics, branding | Planned |
-| WhatsApp via Meta Cloud API | Planned |
-| SMS, push, in-app, recurring schedules, workflow engine, cost estimates, bulk campaigns | Later (shown as "Pending" in the UI) |
+| Delivery receipts (delivered/read) from SES events, SQS-backed worker with retries and dead-letter queue | Next |
+| WhatsApp sending via Meta Cloud API (credentials can be stored; sending is not wired yet) | Planned |
+| Webhook subscriptions (create/deliver), workflow engine, recurring schedules | Planned |
+| SMS, push, in-app, cost estimates, bulk campaigns | Later (shown as "Pending" in the UI) |
 
 ## Repository layout
 

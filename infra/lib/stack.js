@@ -10,6 +10,7 @@ import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as ses from "aws-cdk-lib/aws-ses";
 import * as logs from "aws-cdk-lib/aws-logs";
+import * as sm from "aws-cdk-lib/aws-secretsmanager";
 
 export class EcholyStack extends Stack {
   constructor(scope, id, { adminEmail, cloudFrontPrefixList, ...props }) {
@@ -37,6 +38,9 @@ export class EcholyStack extends Stack {
     // SES: creating the identity makes AWS email a verification link to the admin address.
     new ses.EmailIdentity(this, "SenderIdentity", { identity: ses.Identity.email(adminEmail) });
 
+    // Key used to encrypt provider credentials stored in the database (AES-256-GCM).
+    const secretsKey = new sm.Secret(this, "SecretsKey", { generateSecretString: { passwordLength: 48, excludePunctuation: true } });
+
     const cluster = new ecs.Cluster(this, "Cluster", { vpc });
     const api = new patterns.ApplicationLoadBalancedFargateService(this, "Api", {
       cluster, cpu: 256, memoryLimitMiB: 512, desiredCount: 1,
@@ -46,6 +50,7 @@ export class EcholyStack extends Stack {
         image: ecs.ContainerImage.fromAsset("../server"),
         containerPort: 8787,
         logDriver: ecs.LogDrivers.awsLogs({ streamPrefix: "api", logRetention: logs.RetentionDays.ONE_WEEK }),
+        secrets: { SECRETS_KEY: ecs.Secret.fromSecretsManager(secretsKey) },
         environment: {
           NODE_ENV: "production", DEMO_MODE: "true", PORT: "8787", RUN_MIGRATIONS: "true",
           BOOTSTRAP_ADMIN_EMAIL: adminEmail, SES_FROM: adminEmail,
@@ -56,7 +61,7 @@ export class EcholyStack extends Stack {
     api.targetGroup.configureHealthCheck({ path: "/healthz", interval: Duration.seconds(30) });
     db.secret.grantRead(api.taskDefinition.taskRole);
     db.connections.allowDefaultPortFrom(api.service, "API to Postgres");
-    api.taskDefinition.taskRole.addToPrincipalPolicy(new iam.PolicyStatement({ actions: ["ses:SendEmail"], resources: ["*"] }));
+    api.taskDefinition.taskRole.addToPrincipalPolicy(new iam.PolicyStatement({ actions: ["ses:SendEmail", "ses:CreateEmailIdentity", "ses:GetEmailIdentity", "ses:DeleteEmailIdentity"], resources: ["*"] }));
     // Only CloudFront may reach the load balancer.
     api.loadBalancer.connections.allowFrom(ec2.Peer.prefixList(cloudFrontPrefixList), ec2.Port.tcp(80), "CloudFront only");
 

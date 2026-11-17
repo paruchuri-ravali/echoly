@@ -12,6 +12,9 @@ if (config.runMigrations) {
   if (config.demoMode) await ensureDemoOrg();
 }
 
+const { runDueSchedules } = await import("./routes/messaging.js");
+setInterval(() => runDueSchedules().catch((e) => console.error("scheduler", e.message)), 30_000).unref();
+
 const server = serve({ fetch: app.fetch, port: config.port }, (i) => console.log(`API listening on :${i.port}`));
 const stop = () => server.close(() => pool.end().then(() => process.exit(0)));
 process.on("SIGTERM", stop);
