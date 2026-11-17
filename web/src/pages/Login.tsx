@@ -4,7 +4,7 @@ import { Building2, Code2, Crown, Radio, UserCog } from "lucide-react";
 import { useState } from "react";
 import { Button, Field, Input } from "../components/ui";
 import { api, USE_MOCK } from "../lib/api";
-import { useAction } from "../lib/hooks";
+import { useAction, useApi } from "../lib/hooks";
 import type { Role } from "../lib/types";
 
 const roles: { role: Role; title: string; icon: typeof Crown; desc: string }[] = [
@@ -20,6 +20,8 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [sent, setSent] = useState(false);
+  const cfg = useApi<{ demo: boolean }>("/internal/auth/config", undefined, !USE_MOCK);
+  const showDemo = USE_MOCK || !!cfg.data?.demo;
   const enter = () => { qc.clear(); navigate({ to: "/" }); };
   const demo = useAction((role: Role) => api.post("/internal/auth/demo-login", { role }), { onSuccess: enter });
   const request = useAction(() => api.post("/internal/auth/otp/request", { email }), { success: "Code sent if the email is registered", onSuccess: () => setSent(true) });
@@ -31,10 +33,14 @@ export function LoginPage() {
           <div className="grid size-9 place-items-center rounded-xl bg-primary text-primary-fg"><Radio className="size-5" /></div>
           <h1 className="text-2xl font-semibold tracking-tight">Echoly</h1>
         </div>
-        {USE_MOCK ? (
-          <div className="rounded-2xl border border-border bg-surface p-6">
-            <h2 className="text-base font-semibold">Sign in as</h2>
-            <p className="mb-4 mt-1 text-[13px] text-muted">Demo mode: pick a role to see what each person gets. There is no real authentication yet, and the real backend will enforce these permissions itself.</p>
+        {showDemo && (
+          <div className="mb-4 rounded-2xl border border-border bg-surface p-6">
+            <h2 className="text-base font-semibold">Try the demo</h2>
+            <p className="mb-4 mt-1 text-[13px] text-muted">
+              {USE_MOCK
+                ? "Demo mode: pick a role to see what each person gets. Sample data only."
+                : "Sign in instantly as a sample user in a separate demo organization. Pick a role to see what each person gets. Your real organization is not affected."}
+            </p>
             <div className="grid gap-3 sm:grid-cols-2">
               {roles.map((r) => (
                 <button key={r.role} onClick={() => demo.mutate(r.role)} disabled={demo.isPending}
@@ -45,9 +51,10 @@ export function LoginPage() {
               ))}
             </div>
           </div>
-        ) : (
+        )}
+        {!USE_MOCK && (
           <div className="mx-auto max-w-sm rounded-2xl border border-border bg-surface p-6">
-            <h2 className="mb-4 text-base font-semibold">Sign in</h2>
+            <h2 className="mb-4 text-base font-semibold">Sign in with your account</h2>
             <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); sent ? verify.mutate(undefined) : request.mutate(undefined); }}>
               <Field label="Work email"><Input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={sent} /></Field>
               {sent && <Field label="6-digit code" hint="Check your inbox. Codes expire in 10 minutes."><Input inputMode="numeric" pattern="[0-9]{6}" required value={code} onChange={(e) => setCode(e.target.value)} /></Field>}

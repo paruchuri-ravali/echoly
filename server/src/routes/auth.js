@@ -23,7 +23,8 @@ async function startSession(c, userId) {
 r.post("/otp/request", body(z.object({ email: z.string().email() })), async (c) => {
   const email = normEmail(c.req.valid("json").email);
   // Same response whether or not the email is registered (no account enumeration).
-  const user = (await query("SELECT id FROM users WHERE email=$1", [email])).rows[0];
+  // Demo-org users sign in with the demo buttons only: never create or email codes for them.
+  const user = (await query("SELECT u.id FROM users u JOIN orgs o ON o.id=u.org_id WHERE u.email=$1 AND o.slug<>'demo'", [email])).rows[0];
   const recent = (await query("SELECT count(*)::int n FROM otp_codes WHERE email=$1 AND created_at > now() - interval '1 hour'", [email])).rows[0].n;
   if (user && recent < 5) {
     const code = otpCode();
@@ -45,17 +46,22 @@ r.post("/otp/verify", body(z.object({ email: z.string().email(), code: z.string(
     throw bad;
   }
   await query("UPDATE otp_codes SET used=true WHERE id=$1", [otp.id]);
-  const user = (await query("SELECT id FROM users WHERE email=$1", [email])).rows[0];
+  const user = (await query("SELECT u.id FROM users u JOIN orgs o ON o.id=u.org_id WHERE u.email=$1 AND o.slug<>'demo'", [email])).rows[0];
   if (!user) throw bad;
   await startSession(c, user.id);
   return c.json({ ok: true });
 });
 
 // Dev only: the Login page's demo buttons. Disabled unless ENABLE_DEMO_LOGIN=true.
+r.get("/config", (c) => c.json({ demo: config.demoMode || config.enableDemoLogin }));
+
 r.post("/demo-login", body(z.object({ role: z.enum(["org_admin", "project_admin", "developer", "client", "viewer"]) })), async (c) => {
-  if (!config.enableDemoLogin) throw notFound("Route");
+  if (!config.enableDemoLogin && !config.demoMode) throw notFound("Route");
   const { role } = c.req.valid("json");
-  const u = (await query("SELECT user_id FROM memberships WHERE role=$1 ORDER BY created_at LIMIT 1", [role])).rows[0];
+  // In deployed demo mode the buttons only ever reach the isolated demo organization.
+  const u = (await query(
+    `SELECT m.user_id FROM memberships m JOIN users us ON us.id=m.user_id JOIN orgs o ON o.id=us.org_id
+     WHERE m.role=$1 AND ($2::boolean = false OR o.slug='demo') ORDER BY m.created_at LIMIT 1`, [role, config.demoMode])).rows[0];
   if (!u) throw new HttpError(404, "not_found", `No seeded user with role ${role}. Run npm run seed.`);
   await startSession(c, u.user_id);
   return c.json({ ok: true });

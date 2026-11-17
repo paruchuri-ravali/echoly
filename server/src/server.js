@@ -6,9 +6,10 @@ const { pool } = await import("./db/pool.js");
 
 if (config.runMigrations) {
   const { migrate } = await import("./db/migrate.js");
-  const { bootstrapAdmin } = await import("./db/bootstrap.js");
+  const { bootstrapAdmin, ensureDemoOrg } = await import("./db/bootstrap.js");
   await migrate();
   await bootstrapAdmin(config.bootstrapAdminEmail);
+  if (config.demoMode) await ensureDemoOrg();
 }
 
 const server = serve({ fetch: app.fetch, port: config.port }, (i) => console.log(`API listening on :${i.port}`));

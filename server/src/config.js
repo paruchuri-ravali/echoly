@@ -9,6 +9,7 @@ export const config = {
   sessionTtlHours: Number(env.SESSION_TTL_HOURS ?? 168),
   enableDemoLogin: env.ENABLE_DEMO_LOGIN === "true",
   otpConsole: env.OTP_CONSOLE === "true",
+  demoMode: env.DEMO_MODE === "true",
   sesFrom: env.SES_FROM ?? "",
   runMigrations: env.RUN_MIGRATIONS === "true",
   bootstrapAdminEmail: env.BOOTSTRAP_ADMIN_EMAIL ?? "",

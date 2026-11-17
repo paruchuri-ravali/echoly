@@ -47,7 +47,7 @@ export class EcholyStack extends Stack {
         containerPort: 8787,
         logDriver: ecs.LogDrivers.awsLogs({ streamPrefix: "api", logRetention: logs.RetentionDays.ONE_WEEK }),
         environment: {
-          NODE_ENV: "production", PORT: "8787", RUN_MIGRATIONS: "true",
+          NODE_ENV: "production", DEMO_MODE: "true", PORT: "8787", RUN_MIGRATIONS: "true",
           BOOTSTRAP_ADMIN_EMAIL: adminEmail, SES_FROM: adminEmail,
           DB_SECRET_ARN: db.secret.secretArn, DB_SSL: "true",
         },
