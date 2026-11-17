@@ -7,7 +7,8 @@ Node.js (ESM, plain JavaScript) · Hono · PostgreSQL · built to run on AWS (EC
     # (or: docker compose up -d)
     cp .env.example .env
     npm install
-    npm run seed        # migrates + creates demo org, project and users
+    npm run seed        # migrates + creates demo org, users and ~900 realistic notifications (30 days)
+    npm run seed:reset  # clears generated demo content, then re-seeds (users/projects are kept)
     npm run dev         # http://localhost:8787
 
 Point the dashboard at it: in `web/.env.development` set `VITE_USE_MOCK=false`.

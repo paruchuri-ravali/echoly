@@ -1,6 +1,7 @@
 import { pool, tx } from "./pool.js";
 import { migrate } from "./migrate.js";
 import { newId, slugify } from "../lib/util.js";
+import { seedDemoData } from "./demo-data.js";
 
 await migrate();
 const adminEmail = (process.env.SEED_ADMIN_EMAIL ?? "admin@example.com").toLowerCase();
@@ -26,6 +27,10 @@ await tx(async (db) => {
   for (const [email, name, role, proj] of people) {
     const u = (await db.query("INSERT INTO users (id,org_id,email,name) VALUES ($1,$2,$3,$4) ON CONFLICT (email) DO UPDATE SET name=users.name RETURNING id", [newId("usr"), org, email, name])).rows[0].id;
     await db.query("INSERT INTO memberships (id,user_id,project_id,role) VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING", [newId("mem"), u, proj, role]);
+  }
+  if (!process.argv.includes("--no-data")) {
+    const r = await seedDemoData(db, org);
+    console.log(r ? `Demo data: ${r.projects} projects, ${r.notifications} notifications` : "Demo data already present (use `npm run seed:reset` to regenerate).");
   }
 });
 console.log(`Seeded. Sign in as ${adminEmail} (OTP is printed to the server console when OTP_CONSOLE=true).`);
